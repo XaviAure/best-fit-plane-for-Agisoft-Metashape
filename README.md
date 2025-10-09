@@ -41,4 +41,4 @@ The script prints:
 
 ## License
 
-MIT
+GNU General Public License v3.0
