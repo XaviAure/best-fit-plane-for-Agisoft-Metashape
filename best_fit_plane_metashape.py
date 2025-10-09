@@ -13,7 +13,7 @@ be repositioned together. Requires a mesh to be generated first.
 Ideal for preparing scanned planar artworks for orthomosaic generation but should work for any 3D mesh.
 
 Author: Xavier Aure Calvet
-License: MIT
+License: GNU General Public License v3.0
 """
 
 import Metashape
