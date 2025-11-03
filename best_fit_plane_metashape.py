@@ -108,9 +108,18 @@ chunk.transform.matrix = R_matrix * chunk.transform.matrix  # Transforms entire 
 
 print("Best-fit plane aligned with XY plane")
 
-# Optional: Reset region to fit new orientation
-if hasattr(chunk, 'resetRegion'):
-    chunk.resetRegion()
+# Reset region to fit new orientation
+chunk.resetRegion()
+
+# CRITICAL FIX: Reset chunk transform to identity
+# This moves the transformation into the region's coordinate system
+# so the trackball works correctly
+chunk.transform.matrix = Metashape.Matrix([[1, 0, 0, 0],
+                                           [0, 1, 0, 0],
+                                           [0, 0, 1, 0],
+                                           [0, 0, 0, 1]])
+
+print("Chunk transform reset to identity - trackball should work correctly now")
 
 # Verify final position
 final_points = []
