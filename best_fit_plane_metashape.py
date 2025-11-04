@@ -111,15 +111,13 @@ print("Best-fit plane aligned with XY plane")
 # Reset region to fit new orientation
 chunk.resetRegion()
 
-# CRITICAL FIX: Reset chunk transform to identity
-# This moves the transformation into the region's coordinate system
-# so the trackball works correctly
-chunk.transform.matrix = Metashape.Matrix([[1, 0, 0, 0],
-                                           [0, 1, 0, 0],
-                                           [0, 0, 1, 0],
-                                           [0, 0, 0, 1]])
+# Note on trackball orientation:
+# The trackball axes are determined by the region's rotation matrix.
+# After resetRegion(), the region may be oriented with the mesh rather than world XYZ.
+# To align trackball with world axes manually:
+#   Model menu -> Transform Region -> Rotate Region (align to XYZ)
 
-print("Chunk transform reset to identity - trackball should work correctly now")
+print("Alignment complete.")
 
 # Verify final position
 final_points = []
