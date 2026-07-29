@@ -17,9 +17,9 @@ License: GNU General Public License v3.0
 """
 
 import Metashape
-import numpy as np
 
-# Ensure NumPy is installed
+# Ensure NumPy is installed (the try/except must be the FIRST numpy import,
+# otherwise a missing numpy crashes before the auto-install can run)
 try:
     import numpy as np
 except ImportError:
@@ -44,11 +44,20 @@ if len(vertices) < 3:
     print("Not enough vertices to compute a plane.")
     raise Exception("Not enough vertices to compute a plane.")
 
+# Subsample very dense meshes: the centroid and best-fit plane are
+# essentially identical when computed on a large subset, and this avoids
+# minutes-long Python loops on multi-million-vertex meshes.
+MAX_FIT_VERTICES = 500_000
+step = max(1, len(vertices) // MAX_FIT_VERTICES)
+if step > 1:
+    print(f"Dense mesh: using every {step}th vertex "
+          f"(~{len(vertices) // step:,} of {len(vertices):,}) for the plane fit")
+
 # Get vertex coordinates in world space
+T_world = chunk.transform.matrix
 points = []
-for vertex in vertices:
-    coord = vertex.coord
-    coord_world = chunk.transform.matrix.mulp(coord)
+for vertex_index in range(0, len(vertices), step):
+    coord_world = T_world.mulp(vertices[vertex_index].coord)
     points.append([coord_world.x, coord_world.y, coord_world.z])
 
 points = np.array(points)
@@ -119,11 +128,11 @@ chunk.resetRegion()
 
 print("Alignment complete.")
 
-# Verify final position
+# Verify final position (same subsample as the fit)
+T_final = chunk.transform.matrix
 final_points = []
-for vertex in vertices:
-    coord = vertex.coord
-    coord_world = chunk.transform.matrix.mulp(coord)
+for vertex_index in range(0, len(vertices), step):
+    coord_world = T_final.mulp(vertices[vertex_index].coord)
     final_points.append([coord_world.x, coord_world.y, coord_world.z])
 
 final_centroid = np.mean(final_points, axis=0)
